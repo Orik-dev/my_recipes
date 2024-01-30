@@ -4,22 +4,26 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.my_recipes.data.Repository
 import com.example.my_recipes.models.FoodRecipe
 import com.example.my_recipes.util.NetworkResult
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.lang.Exception
 import javax.inject.Inject
 
+@HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: Repository,
-    application: MyApplication
-) :
-    AndroidViewModel(application) {
+    @ApplicationContext val context: Context,
+) : ViewModel() {
 
     var recipesResponse: MutableLiveData<NetworkResult<FoodRecipe>> = MutableLiveData()
 
@@ -34,6 +38,7 @@ class MainViewModel @Inject constructor(
                 val response = repository.remote.getRecipes(queries)
                 recipesResponse.value = handleFoodRecipesResponse(response)
             } catch (e: Exception) {
+                Log.e("AAAAAAA", "Recipes safe call: ${e.message}")
                 recipesResponse.value = NetworkResult.Error("Recipes not found")
             }
         } else {
@@ -52,6 +57,8 @@ class MainViewModel @Inject constructor(
             }
 
             response.body()?.results.isNullOrEmpty() -> {
+                Log.e("AAAAAAA", "Recipes $response")
+
                 return NetworkResult.Error("Recipes not found")
             }
 
@@ -69,7 +76,7 @@ class MainViewModel @Inject constructor(
 
     private fun hasInternetConnection(): Boolean {
         val connectivityManager =
-            getApplication<Application>().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
 

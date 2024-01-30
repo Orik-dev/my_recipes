@@ -9,10 +9,12 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.my_recipes.R
 import com.example.my_recipes.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
 private lateinit var binding: ActivityMainBinding
 private lateinit var navController: NavController
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

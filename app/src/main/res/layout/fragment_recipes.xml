@@ -9,7 +9,7 @@
     tools:context=".ui.fragments.RecipesFragment">
 
     <com.todkars.shimmer.ShimmerRecyclerView
-        android:id="@+id/shimmer_recycler_view"
+        android:id="@+id/recyclerview"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -58,6 +58,7 @@
         android:text="@string/no_internet_connection"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="@+id/error_Img"
         app:layout_constraintHorizontal_bias="0.488"
         app:layout_constraintStart_toStartOf="@+id/error_Img"
