@@ -17,12 +17,16 @@ import com.example.my_recipes.viewmodels.MainViewModel
 import com.example.my_recipes.adapter.RecipesAdapter
 import com.example.my_recipes.databinding.FragmentRecipesBinding
 import com.example.my_recipes.util.Constants.Companion.API_KEY
+import com.example.my_recipes.util.NetworkListener
 import com.example.my_recipes.util.NetworkResult
 import com.example.my_recipes.util.observeOnce
 import com.example.my_recipes.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
 
@@ -30,10 +34,10 @@ class RecipesFragment : Fragment() {
     private lateinit var mainViewModel: MainViewModel
     private lateinit var recipesViewModel: RecipesViewModel
     private val mAdapter by lazy { RecipesAdapter() }
-    private  var _binding: FragmentRecipesBinding? = null
+    private var _binding: FragmentRecipesBinding? = null
     private val binding get() = _binding!!
 
-
+    private lateinit var networkListener: NetworkListener
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,8 +60,24 @@ class RecipesFragment : Fragment() {
         setupRecyclerView()
         readDataBase()
 
+        lifecycleScope.launch {
+            networkListener = NetworkListener()
+            networkListener.checkNetworkAvailability(requireContext())
+                .collect { status ->
+                    Log.d("NetworkListener", status.toString())
+                    recipesViewModel.networkStatus = status
+                    recipesViewModel.showNetworkConnection()
+                }
+        }
+
         binding.recipesFab.setOnClickListener {
-            findNavController().navigate(R.id.action_recipesFragment_to_recipesBottomSheet)
+
+            if (recipesViewModel.networkStatus) {
+                findNavController().navigate(R.id.action_recipesFragment_to_recipesBottomSheet)
+            } else {
+                recipesViewModel.showNetworkConnection()
+            }
+
         }
         return binding.root
     }
